@@ -11,32 +11,50 @@
   --bg:#ffffff; --card:#f2f4f7; --text:#0b0f1a; --muted:#5b6472;
   --primary:#2e5bff; --accent:#21c17a; --danger:#d92d20; --border:#e5e7eb;
   --radius:12px;
+   --sticky-h: 108px;
 }
 @media (prefers-color-scheme: dark){
   :root{ --bg:#0e1116; --card:#151a22; --text:#f2f4f7; --muted:#a8b0bd; --border:#1f2430; }
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color: transparent}
 html,body{height:100%}
+
+/* update body padding: */
+/* update body padding (ADD top safe-area inset) */
 body{
-  margin:0; padding:16px env(safe-area-inset-right) 88px env(safe-area-inset-left);
+  margin:0;
+  padding:
+    calc(16px + env(safe-area-inset-top))   /* ← was 16px; add notch inset */
+    env(safe-area-inset-right)
+    calc(var(--sticky-h) + 24px + env(safe-area-inset-bottom))
+    env(safe-area-inset-left);
   font:16px/1.4 -apple-system, system-ui, Segoe UI, Roboto, sans-serif;
   color:var(--text); background:var(--bg);
   -webkit-text-size-adjust:100%;
 }
+
 h1{font-size:20px;margin:0 0 12px}
 .section{background:var(--card); border:1px solid var(--border); border-radius:12px; padding:12px; margin:12px 0; box-shadow:0 6px 24px rgba(0,0,0,.06)}
 label{display:block; font-weight:600; font-size:14px; margin:8px 0 6px}
 .helper{font-size:12px; color:var(--muted); margin-top:4px}
 .row{display:grid; grid-template-columns:1fr 1fr; gap:12px}
 input,select,textarea{
+  scroll-margin-bottom: calc(var(--sticky-h) + 32px);
   width:100%; padding:12px; border:1px solid var(--border); border-radius:10px;
   background:var(--bg); color:var(--text); font-size:16px; -webkit-appearance:none; appearance:none;
 }
 textarea{min-height:76px; resize:vertical}
 .badge{display:inline-block; padding:2px 8px; font-size:12px; border-radius:999px; background:rgba(46,91,255,.12); color:var(--primary); margin-left:8px}
+/* pin sticky above the iPhone home indicator */
 .sticky{
-  position:fixed; inset:auto 16px 16px 16px; padding:12px; border-radius:16px;
-  background:var(--bg); border:1px solid var(--border); box-shadow:0 10px 30px rgba(0,0,0,.12);
+  position:fixed;
+  left:16px; right:16px;
+  bottom: max(16px, env(safe-area-inset-bottom));
+  padding:12px;
+  border-radius:16px;
+  background:var(--bg);
+  border:1px solid var(--border);
+  box-shadow:0 10px 30px rgba(0,0,0,.12);
   display:flex; gap:10px; align-items:center; z-index:10;
 }
 button{height:48px; padding:0 16px; border:0; border-radius:12px; font-weight:700; font-size:16px}
@@ -189,10 +207,11 @@ input:focus, select:focus, textarea:focus { outline: 2px solid rgba(46,91,255,.3
 
   <!-- Sticky submit -->
   <div class="sticky">
-    <button class="secondary" type="button" id="saveLocal">Save Local</button>
+    <button class="secondary hidden" type="button" id="saveLocal">Save Local</button>
     <button class="primary" type="submit">Submit</button>
     <div class="msg" id="msg"></div>
   </div>
+  <div aria-hidden="true" style="height: calc(var(--sticky-h) + 24px + env(safe-area-inset-bottom));"></div>
 </form>
 
 <script>
@@ -222,6 +241,19 @@ setDefaults();
     el.setAttribute('spellcheck', 'false');
   });
 })();
+// Measure sticky height -> set --sticky-h, keep it accurate on viewport/keyboard changes
+function setStickyPadding(){
+  const sticky = document.querySelector('.sticky');
+  if(!sticky) return;
+  const h = sticky.getBoundingClientRect().height;
+  document.documentElement.style.setProperty('--sticky-h', `${h}px`);
+}
+setStickyPadding();
+window.addEventListener('resize', setStickyPadding);
+if (window.visualViewport) {
+  visualViewport.addEventListener('resize', setStickyPadding);
+}
+
 
 // 2) Offline queue
 const QUEUE_KEY = 'pfc_offline_queue_v2';
@@ -319,13 +351,25 @@ window.addEventListener('online', flushQueue);
 document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState==='visible') flushQueue(); });
 
 // 5) Submit + Save Local
-document.getElementById('saveLocal').addEventListener('click', ()=>{
-  const data = Object.fromEntries(new FormData(form).entries());
-  sanitizeForR(data);
-  enqueue(data);
-  msg.textContent = 'Saved locally 📦 (will sync when online)';
-  msg.className = 'msg ok';
-});
+// document.getElementById('saveLocal').addEventListener('click', ()=>{
+//   const data = Object.fromEntries(new FormData(form).entries());
+//   sanitizeForR(data);
+//   enqueue(data);
+//   msg.textContent = 'Saved locally 📦 (will sync when online)';
+//   msg.className = 'msg ok';
+// });
+// 5) Submit + (optional) Save Local
+const saveBtn = document.getElementById('saveLocal'); // may not exist (or may be hidden)
+if (saveBtn) {
+  saveBtn.addEventListener('click', () => {
+    const data = Object.fromEntries(new FormData(form).entries());
+    sanitizeForR(data);
+    enqueue(data);
+    msg.textContent = 'Saved locally 📦 (will sync when online)';
+    msg.className = 'msg ok';
+  });
+}
+
 
 form.addEventListener('submit', async (e)=>{
   e.preventDefault();
