@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Project Full Cycle — Quick Log</title>
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<style>
+:root{
+  --bg:#ffffff; --card:#f2f4f7; --text:#0b0f1a; --muted:#5b6472;
+  --primary:#2e5bff; --accent:#21c17a; --danger:#d92d20; --border:#e5e7eb;
+  --radius:12px;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#0e1116; --card:#151a22; --text:#f2f4f7; --muted:#a8b0bd; --border:#1f2430; }
+}
+*{box-sizing:border-box}
+body{
+  margin:0; padding:16px env(safe-area-inset-right) 88px env(safe-area-inset-left);
+  font:16px/1.4 -apple-system, system-ui, Segoe UI, Roboto, sans-serif;
+  color:var(--text); background:var(--bg);
+}
+h1{font-size:20px;margin:0 0 12px}
+.section{background:var(--card); border:1px solid var(--border); border-radius:12px; padding:12px; margin:12px 0; box-shadow:0 6px 24px rgba(0,0,0,.06)}
+label{display:block; font-weight:600; font-size:14px; margin:8px 0 6px}
+.helper{font-size:12px; color:var(--muted); margin-top:4px}
+.row{display:grid; grid-template-columns:1fr 1fr; gap:12px}
+input,select,textarea{
+  width:100%; padding:12px; border:1px solid var(--border); border-radius:10px;
+  background:var(--bg); color:var(--text); font-size:16px; -webkit-appearance:none; appearance:none;
+}
+textarea{min-height:76px; resize:vertical}
+.badge{display:inline-block; padding:2px 8px; font-size:12px; border-radius:999px; background:rgba(46,91,255,.12); color:var(--primary); margin-left:8px}
+.sticky{
+  position:fixed; inset:auto 16px 16px 16px; padding:12px; border-radius:16px;
+  background:var(--bg); border:1px solid var(--border); box-shadow:0 10px 30px rgba(0,0,0,.12);
+  display:flex; gap:10px; align-items:center; z-index:10;
+}
+button{height:48px; padding:0 16px; border:0; border-radius:12px; font-weight:700; font-size:16px}
+.primary{background:var(--primary); color:#fff; flex:1}
+.secondary{background:var(--card); color:var(--text); border:1px solid var(--border)}
+.msg{font-size:14px}
+.ok{color:var(--accent)} .err{color:var(--danger)} .muted{color:var(--muted)}
+.hidden{display:none!important}
+.small{font-size:13px;color:var(--muted)}
+</style>
+</head>
+<body>
+
+<header style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+  <h1>Project Full Cycle <span class="badge">Quick Log</span></h1>
+  <span class="small">iPhone-optimized</span>
+</header>
+
+<form id="logForm" novalidate>
+  <!-- Identity & Date -->
+  <div class="section">
+    <div class="row">
+      <div>
+        <label for="Date">Date</label>
+        <input id="Date" name="Date" type="date" required />
+        <div class="helper">Defaults to today—tap to adjust</div>
+      </div>
+      <div>
+        <label for="Project">Project</label>
+        <input id="Project" name="Project" value="Full Cycle" readonly />
+        <div class="helper">Locked</div>
+      </div>
+    </div>
+    <div class="row">
+        <div style="grid-column:1 / -1">
+            <label for="Wake Up">Wake Up</label>
+            <input id="Wake Up" name="Wake Up" type="time" value="05:00" />
+        </div>
+    </div>
+
+  </div>
+
+    <!-- Sleep (_r fields as hh:mm durations) -->
+  <div class="section">
+    <div class="row">
+      <div>
+        <label for="Sleep Time">Sleep Time</label>
+            <input id="Sleep Time" name="Sleep Time" type="time" value="21:30" />
+      </div>
+      <div>
+        <label for="Total Sleep Hours">Total Sleep Hours (hh:mm)</label>
+        <input id="Total Sleep Hours" name="Total Sleep Hours" type="text" inputmode="numeric" placeholder="7:17" class="hhmm" />
+      </div>
+    </div>
+
+    <!-- Visible: percentages only -->
+    <div class="row">
+    <div>
+        <label for="REM_r">REM_r (hh:mm)</label>
+        <input id="REM_r"  name="REM_r"  type="text" inputmode="numeric" placeholder="02:03" class="hhmm" />
+    </div>
+    <div>
+        <label for="Core_r">Core_r (hh:mm)</label>
+        <input id="Core_r" name="Core_r" type="text" inputmode="numeric" placeholder="04:26" class="hhmm" />
+    </div>
+    </div>
+    <div class="row">
+    <div style="grid-column:1 / -1">
+        <label for="Deep_r">Deep_r (hh:mm)</label>
+        <input id="Deep_r" name="Deep_r" type="text" inputmode="numeric" placeholder="01:10" class="hhmm" />
+    </div>
+    </div>
+
+
+    <!-- Hidden: non-_r fields (kept for header-match, auto-cleared before submit) -->
+    <input class="hidden" id="Sleep Hours" name="Sleep Hours" />
+    <input class="hidden" id="REM" name="REM" />
+    <input class="hidden" id="Core" name="Core" />
+    <input class="hidden" id="Deep" name="Deep" />
+  </div>
+
+  <!-- Dreams -->
+  <div class="section">
+    <div class="row">
+      <div>
+        <label for="Dream">Dream</label>
+        <select id="Dream" name="Dream">
+          <option>None / Not remembered</option>
+          <option>Vivid</option>
+          <option>Horror / Fear</option>
+          <option>Pleasure</option>
+          <option>Creative / Problem-solving</option>
+          <option>Emotional / Relationship</option>
+          <option>Lucid / Aware</option>
+          <option>Other / Random</option>
+        </select>
+      </div>
+      <div>
+        <label for="Dream note">Dream note</label>
+        <input id="Dream note" name="Dream note" placeholder="(optional)" />
+      </div>
+    </div>
+  </div>
+
+  <!-- Day -->
+  <div class="section">
+    <div class="row">
+      <div>
+        <label for="Morning Activity">Morning Activity</label>
+        <input id="Morning Activity" name="Morning Activity" placeholder="1 hr walk / 5K run" />
+      </div>
+      <div>
+        <label for="Work/Energy">Work/Energy</label>
+        <input id="Work/Energy" name="Work/Energy" placeholder="steady / crash at 2pm…" />
+      </div>
+    </div>
+    <div class="row">
+      <div>
+        <label for="Gym / Social">Gym / Social</label>
+        <input id="Gym / Social" name="Gym / Social" placeholder="legs day; dinner w/ friends" />
+      </div>
+      <div>
+        <label for="Evening / Notes">Evening / Notes</label>
+        <input id="Evening / Notes" name="Evening / Notes" placeholder="screen off 9:15; shower; journal; lights out 9:50" />
+      </div>
+    </div>
+  </div>
+
+  <!-- Sticky submit -->
+  <div class="sticky">
+    <button class="secondary" type="button" id="saveLocal">Save Local</button>
+    <button class="primary" type="submit">Submit</button>
+    <div class="msg" id="msg"></div>
+  </div>
+</form>
+
+<script>
+const WEBAPP_URL = 'https://script.google.com/macros/s/AKfycby3LHstqBVwargOknQiUY57L-ndeUV6kVaGf_XnSC6xmslZWRv4lbpAVpO0ppLPE1hb/exec'; // <-- replace me
+
+// 1) Defaults on load (Date today + Sleep Time 21:30 + Wake 05:00)
+function setDefaults(){
+  const d = new Date();
+  const pad = n => String(n).padStart(2,'0');
+  const today = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+  const dateEl = document.getElementById('Date');
+  if(!dateEl.value) dateEl.value = today;
+
+  const sleepEl = document.getElementById('Sleep Time');
+  if(!sleepEl.value) sleepEl.value = '21:30';
+
+  const wakeEl = document.getElementById('Wake Up');
+  if(!wakeEl.value) wakeEl.value = '05:00';
+}
+setDefaults();
+
+
+// 2) Offline queue
+const QUEUE_KEY = 'pfc_offline_queue_v2';
+const enqueue = payload => {
+  const q = JSON.parse(localStorage.getItem(QUEUE_KEY) || '[]');
+  q.push({ ts: Date.now(), payload });
+  localStorage.setItem(QUEUE_KEY, JSON.stringify(q));
+};
+// --- Auto-format hh:mm for numeric keypad fields --- //
+function maskToHHMM(el){
+  // keep only digits, max 4 numbers (HHMM)
+  let digits = el.value.replace(/\D/g, '').slice(0, 4);
+
+  // build HH:MM as you type
+  if (digits.length >= 3) {
+    el.value = digits.slice(0, 2) + ':' + digits.slice(2);
+  } else {
+    el.value = digits; // 0-2 digits (still typing HH)
+  }
+}
+
+function clampHHMM(el){
+  const m = /^(\d{1,2}):(\d{2})$/.exec(el.value.trim());
+  if (!m) return; // let required/placeholder guide; no hard error here
+  let hh = parseInt(m[1], 10);
+  let mm = parseInt(m[2], 10);
+
+  // minutes 0-59
+  if (isNaN(mm) || mm > 59) mm = Math.min(Math.max(mm || 0, 0), 59);
+  // hours 0-23 (duration usually under 24h; adjust if you want a bigger cap)
+  if (isNaN(hh) || hh > 23) hh = Math.min(Math.max(hh || 0, 0), 23);
+
+  el.value = String(hh).padStart(2,'0') + ':' + String(mm).padStart(2,'0');
+}
+
+function bindHHMMMasks(){
+  const fields = document.querySelectorAll('input.hhmm');
+  fields.forEach(el => {
+    el.addEventListener('input', () => maskToHHMM(el));
+    el.addEventListener('blur',  () => clampHHMM(el));
+  });
+}
+
+// bind once on load
+bindHHMMMasks();
+const flushQueue = async ()=>{
+  const q = JSON.parse(localStorage.getItem(QUEUE_KEY) || '[]');
+  if(!q.length) return;
+  let okCount = 0;
+  for(const item of q){
+    try{
+      await fetch(WEBAPP_URL,{ method:'POST', mode:'no-cors', headers:{'Content-Type':'application/json'}, body: JSON.stringify(item.payload) });
+      okCount++;
+    }catch(e){}
+  }
+  if(okCount===q.length) localStorage.removeItem(QUEUE_KEY);
+};
+window.addEventListener('online', flushQueue);
+document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState==='visible') flushQueue(); });
+
+// 3) Submit
+const form = document.getElementById('logForm');
+const msg = document.getElementById('msg');
+
+document.getElementById('saveLocal').addEventListener('click', ()=>{
+  const data = Object.fromEntries(new FormData(form).entries());
+  sanitizeForR(data);
+  enqueue(data);
+  msg.textContent = 'Saved locally 📦 (will sync when online)';
+  msg.className = 'msg ok';
+});
+
+form.addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  const data = Object.fromEntries(new FormData(form).entries());
+
+  // Required: Date + Total Sleep Hours or at least Sleep Time/Wake Up
+  if(!data['Date']){
+    msg.textContent = 'Please add Date.';
+    msg.className = 'msg err';
+    return;
+  }
+
+  // Ensure Project is locked
+  data['Project'] = 'Full Cycle';
+
+  // Clear non-_r sleep fields per your workflow
+  sanitizeForR(data);
+
+  msg.textContent = 'Saving…';
+  msg.className = 'msg muted';
+
+  try{
+    await fetch(WEBAPP_URL,{
+      method:'POST', mode:'no-cors',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(data)
+    });
+    msg.textContent = 'Saved ✅';
+    msg.className = 'msg ok';
+    form.reset();
+    // Reapply defaults
+    form.reset();
+    document.getElementById('Project').value = 'Full Cycle';
+    setDefaults(); // re-sets Date (today), Sleep Time (21:30), Wake Up (05:00) if empty
+
+  }catch(err){
+    enqueue(data);
+    msg.textContent = 'Offline — saved to device. Will sync later.';
+    msg.className = 'msg ok';
+  }
+});
+
+// Clear non-_r sleep fields so sheet only captures _r + totals you want
+function sanitizeForR(obj){
+  // Keep Total Sleep Hours & Sleep Time if you enter them, but blank the non-_r stage durations:
+  obj['Sleep Hours'] = ''; // decimal not used
+  obj['REM'] = '';
+  obj['Core'] = '';
+  obj['Deep'] = '';
+}
+
+flushQueue();
+</script>
+</body>
+</html>
