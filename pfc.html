@@ -57,7 +57,12 @@ input:focus, select:focus, textarea:focus { outline: 2px solid rgba(46,91,255,.3
   <span class="small">iPhone-optimized</span>
 </header>
 
-<form id="logForm" novalidate>
+<form id="logForm" novalidate autocomplete="off">
+  <input type="password"
+       autocomplete="new-password"
+       tabindex="-1" aria-hidden="true"
+       style="position:absolute;left:-9999px;opacity:0;width:0;height:0;">
+  <!-- Prevent iOS from auto-filling fields -->
   <!-- Identity & Date -->
   <div class="section">
     <div class="row">
@@ -208,6 +213,15 @@ function setDefaults(){
   if(!wakeEl.value) wakeEl.value = '05:00';
 }
 setDefaults();
+(function(){
+  const fields = document.querySelectorAll('#logForm input, #logForm select, #logForm textarea');
+  fields.forEach(el => {
+    el.setAttribute('autocomplete', 'off');
+    el.setAttribute('autocorrect', 'off');
+    el.setAttribute('autocapitalize', 'none');
+    el.setAttribute('spellcheck', 'false');
+  });
+})();
 
 // 2) Offline queue
 const QUEUE_KEY = 'pfc_offline_queue_v2';
