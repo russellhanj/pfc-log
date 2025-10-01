@@ -66,6 +66,15 @@ button{height:48px; padding:0 16px; border:0; border-radius:12px; font-weight:70
 .small{font-size:13px;color:var(--muted)}
 /* Focus ring for clarity when tabbing via hardware keyboard */
 input:focus, select:focus, textarea:focus { outline: 2px solid rgba(46,91,255,.35); outline-offset:2px }
+.icon-btn {
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 </style>
 </head>
 <body>
@@ -206,11 +215,12 @@ input:focus, select:focus, textarea:focus { outline: 2px solid rgba(46,91,255,.3
   </div>
 
   <!-- Sticky submit -->
-  <div class="sticky">
-    <button class="secondary hidden" type="button" id="saveLocal">Save Local</button>
-    <button class="primary" type="submit">Submit</button>
-    <div class="msg" id="msg"></div>
-  </div>
+<div class="sticky">
+  <button class="secondary icon-btn" type="button" id="refreshPage" aria-label="Refresh">⟳</button>
+  <button class="primary" type="submit">Submit</button>
+  <div class="msg" id="msg"></div>
+</div>
+
   <div aria-hidden="true" style="height: calc(var(--sticky-h) + 24px + env(safe-area-inset-bottom));"></div>
 </form>
 
@@ -293,6 +303,13 @@ bindHHMMMasks();
 // 3) Focus UX: Return -> Next, focus scroll, proper Done on last
 const form = document.getElementById('logForm');
 const msg = document.getElementById('msg');
+// Refresh page button
+const refreshBtn = document.getElementById('refreshPage');
+if (refreshBtn) {
+  refreshBtn.addEventListener('click', () => {
+    window.location.reload();
+  });
+}
 
 // Build ordered list of focusable controls (skip readonly/hidden)
 const focusables = Array.from(form.querySelectorAll('input:not([type="hidden"]):not([readonly]), select, textarea'))
